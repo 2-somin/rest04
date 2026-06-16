@@ -41,7 +41,8 @@ export default function ChatWidget() {
       if (error) throw error
 
       setMessages(prev => [...prev, { role: 'assistant', content: data.message }])
-    } catch {
+    } catch (err) {
+      console.error('[ChatWidget] error:', err)
       setMessages(prev => [
         ...prev,
         { role: 'assistant', content: '죄송합니다, 오류가 발생했습니다. 잠시 후 다시 시도해주세요.' },
