@@ -1,5 +1,4 @@
 import { useState, useRef, useEffect } from 'react'
-import { supabase } from '../lib/supabase'
 
 const WELCOME = '안녕하세요! 홈글리시 AI 도우미입니다. 영어 교육 콘텐츠나 학습 방법에 대해 궁금한 점을 물어보세요!'
 
@@ -34,12 +33,19 @@ export default function ChatWidget() {
 
     try {
       const history = [...messages, userMsg]
-      const { data, error } = await supabase.functions.invoke('chat', {
-        body: { messages: history },
-      })
-
-      if (error) throw error
-
+      const res = await fetch(
+        'https://xbcttwrqsepxvytjcjft.supabase.co/functions/v1/chat',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhiY3R0d3Jxc2VweHZ5dGpjamZ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEwNjc2NjMsImV4cCI6MjA5NjY0MzY2M30.ouVXJiDFqYffAiNusfAfABbqiTGGexuKIYQyyuvG6s0',
+          },
+          body: JSON.stringify({ messages: history }),
+        }
+      )
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`)
       setMessages(prev => [...prev, { role: 'assistant', content: data.message }])
     } catch (err) {
       console.error('[ChatWidget] error:', err)
